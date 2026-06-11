@@ -3823,7 +3823,7 @@ Promise.resolve("Hello");
 Пример:
 
 ```javascript
-async function getData() {
+async function getUser() {
   const response = await fetch("/api/users");
 
   const data = await response.json();
@@ -3841,22 +3841,6 @@ fetch("/api/users")
   .then(response => response.json())
   .then(data => console.log(data));
 ```
-
----
-
-#### Аналогичный код через async/await
-
-```javascript
-async function getUsers() {
-  const response = await fetch("/api/users");
-
-  const data = await response.json();
-
-  console.log(data);
-}
-```
-
-Такой код обычно проще читать.
 
 ---
 
@@ -4187,158 +4171,6 @@ null
 ```
 
 Поскольку `null` считается переданным значением, значение по умолчанию не используется.
-
----
-
-### Что такое параметры по умолчанию (Default Parameters)?
-
-Параметры по умолчанию позволяют задавать значения аргументам функции, которые будут использоваться, если при вызове функции соответствующий аргумент не был передан или имеет значение `undefined`.
-
-Данная возможность появилась в ES6 и позволяет сделать код более читаемым и безопасным.
-
----
-
-#### Синтаксис
-
-```javascript
-function greet(name = "Guest") {
-  console.log(`Hello, ${name}`);
-}
-```
-
----
-
-#### Пример использования
-
-```javascript
-function greet(name = "Guest") {
-  console.log(`Hello, ${name}`);
-}
-
-greet();
-greet("John");
-```
-
-Результат:
-
-```text
-Hello, Guest
-Hello, John
-```
-
----
-
-#### Несколько параметров по умолчанию
-
-```javascript
-function createUser(name = "Guest", age = 18) {
-  return {
-    name,
-    age
-  };
-}
-```
-
----
-
-#### Использование выражений
-
-В качестве значения по умолчанию можно использовать любое выражение.
-
-```javascript
-function createDate(date = new Date()) {
-  return date;
-}
-```
-
----
-
-#### Использование других параметров
-
-```javascript
-function multiply(a, b = a * 2) {
-  return b;
-}
-
-console.log(multiply(5));
-```
-
-Результат:
-
-```text
-10
-```
-
----
-
-#### Когда используется значение по умолчанию?
-
-Только если аргумент равен `undefined`.
-
-```javascript
-function test(value = 100) {
-  console.log(value);
-}
-
-test(undefined);
-```
-
-Результат:
-
-```text
-100
-```
-
----
-
-```javascript
-test(null);
-```
-
-Результат:
-
-```text
-null
-```
-
-Поскольку `null` считается переданным значением.
-
----
-
-#### Старый способ до ES6
-
-Раньше часто использовали:
-
-```javascript
-function greet(name) {
-  name = name || "Guest";
-
-  console.log(name);
-}
-```
-
-Проблема такого подхода:
-
-```javascript
-greet("");
-```
-
-Результат:
-
-```text
-Guest
-```
-
-Хотя пустая строка была передана явно.
-
----
-
-#### Преимущества Default Parameters
-
-* Более читаемый код.
-* Отсутствие дополнительных проверок.
-* Поддержка сложных выражений.
-* Корректная работа с ложными значениями (`0`, `false`, `""`).
 
 ---
 
