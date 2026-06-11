@@ -4848,6 +4848,395 @@ const user = createUser("John", 25);
 
 ---
 
+### Какие приемы работы с асинхронным кодом в JavaScript Вы знаете?
+
+JavaScript является однопоточным языком программирования. Для выполнения длительных операций (сетевые запросы, работа с файлами, таймеры и т.д.) используются механизмы асинхронного программирования.
+
+Основные подходы работы с асинхронным кодом:
+
+* Callback Functions
+* Promises
+* Async/Await
+* Методы Promise API
+* Событийная модель (Event-Driven Programming)
+* Web Workers (в браузере)
+* Worker Threads (в Node.js)
+
+---
+
+### Callback Functions
+
+Callback (функция обратного вызова) — функция, передаваемая в другую функцию и вызываемая после завершения операции.
+
+Пример:
+
+```javascript
+setTimeout(() => {
+  console.log("Прошла 1 секунда");
+}, 1000);
+```
+
+---
+
+#### Недостаток Callback Hell
+
+При большом количестве вложенных асинхронных операций код становится сложно поддерживать.
+
+```javascript
+getUser(userId, user => {
+  getOrders(user.id, orders => {
+    getProducts(orders, products => {
+      getReviews(products, reviews => {
+        console.log(reviews);
+      });
+    });
+  });
+});
+```
+
+Такую ситуацию называют **Callback Hell** или **Pyramid of Doom**.
+
+---
+
+### Promises
+
+Promise (Промис) — объект, представляющий результат асинхронной операции, который станет доступен в будущем.
+
+---
+
+#### Создание Promise
+
+```javascript
+const promise = new Promise((resolve, reject) => {
+  const success = true;
+
+  if (success) {
+    resolve("Успех");
+  } else {
+    reject("Ошибка");
+  }
+});
+```
+
+---
+
+#### Состояния Promise
+
+| Состояние | Описание           |
+| --------- | ------------------ |
+| Pending   | Ожидание           |
+| Fulfilled | Успешно выполнен   |
+| Rejected  | Завершен с ошибкой |
+
+---
+
+#### Обработка результата
+
+```javascript
+promise
+  .then(result => {
+    console.log(result);
+  })
+  .catch(error => {
+    console.error(error);
+  })
+  .finally(() => {
+    console.log("Завершено");
+  });
+```
+
+---
+
+#### Пример с fetch
+
+```javascript
+fetch("/api/users")
+  .then(response => response.json())
+  .then(data => {
+    console.log(data);
+  })
+  .catch(error => {
+    console.error(error);
+  });
+```
+
+---
+
+### Async/Await
+
+`async/await` — синтаксический сахар над Promise, позволяющий писать асинхронный код в синхронном стиле.
+
+---
+
+#### Async-функция
+
+```javascript
+async function getData() {
+  return "Hello";
+}
+```
+
+Фактически:
+
+```javascript
+Promise.resolve("Hello");
+```
+
+---
+
+#### Await
+
+```javascript
+async function getUsers() {
+  const response = await fetch("/api/users");
+
+  const users = await response.json();
+
+  console.log(users);
+}
+```
+
+---
+
+#### Обработка ошибок
+
+```javascript
+async function getUsers() {
+  try {
+    const response = await fetch("/api/users");
+
+    const users = await response.json();
+
+    return users;
+  } catch (error) {
+    console.error(error);
+  }
+}
+```
+
+---
+
+#### Преимущества async/await
+
+* Более читаемый код.
+* Удобная обработка ошибок через `try/catch`.
+* Отсутствие длинных цепочек `.then()`.
+
+---
+
+### Promise API
+
+JavaScript предоставляет набор методов для работы с несколькими промисами одновременно.
+
+---
+
+#### Promise.all()
+
+Ожидает успешного завершения всех промисов.
+
+```javascript
+const [users, posts] = await Promise.all([
+  fetch("/users"),
+  fetch("/posts")
+]);
+```
+
+Если хотя бы один промис завершится ошибкой, весь `Promise.all()` будет отклонен.
+
+---
+
+#### Promise.allSettled()
+
+Ожидает завершения всех промисов независимо от результата.
+
+```javascript
+const results = await Promise.allSettled([
+  promise1,
+  promise2
+]);
+```
+
+Результат:
+
+```javascript
+[
+  { status: "fulfilled", value: ... },
+  { status: "rejected", reason: ... }
+]
+```
+
+---
+
+#### Promise.race()
+
+Возвращает результат первого завершившегося промиса.
+
+```javascript
+const result = await Promise.race([
+  promise1,
+  promise2
+]);
+```
+
+---
+
+#### Promise.any()
+
+Возвращает результат первого успешно выполненного промиса.
+
+```javascript
+const result = await Promise.any([
+  promise1,
+  promise2
+]);
+```
+
+Игнорирует отклоненные промисы до тех пор, пока не завершатся все.
+
+---
+
+### Событийная модель (Event-Driven Programming)
+
+Асинхронность часто реализуется через события.
+
+Пример:
+
+```javascript
+button.addEventListener("click", () => {
+  console.log("Кнопка нажата");
+});
+```
+
+Другие примеры:
+
+```javascript
+window.addEventListener("resize", handler);
+
+socket.addEventListener("message", handler);
+
+document.addEventListener("keydown", handler);
+```
+
+---
+
+### Web Workers
+
+Web Worker позволяет выполнять тяжелые вычисления в отдельном потоке и не блокировать главный UI-поток браузера.
+
+Создание Worker:
+
+```javascript
+const worker = new Worker("worker.js");
+```
+
+Отправка данных:
+
+```javascript
+worker.postMessage(data);
+```
+
+Получение ответа:
+
+```javascript
+worker.onmessage = event => {
+  console.log(event.data);
+};
+```
+
+---
+
+### Worker Threads (Node.js)
+
+Аналог Web Workers для Node.js.
+
+```javascript
+const { Worker } = require("worker_threads");
+
+const worker = new Worker("./worker.js");
+```
+
+Используется для CPU-intensive задач:
+
+* Шифрование.
+* Обработка изображений.
+* Сложные вычисления.
+* Анализ больших объемов данных.
+
+---
+
+### Event Loop и асинхронность
+
+Все перечисленные механизмы работают благодаря Event Loop.
+
+Упрощенная схема:
+
+```text
+Call Stack
+     ↓
+Web APIs / Node APIs
+     ↓
+Task Queue
+     ↓
+Event Loop
+```
+
+Алгоритм работы:
+
+1. Выполняется синхронный код.
+2. После очистки стека выполняются все микротаски.
+3. Затем выполняется одна макротаска.
+4. Процесс повторяется.
+
+---
+
+### Пример порядка выполнения
+
+```javascript
+console.log("1");
+
+setTimeout(() => {
+  console.log("2");
+}, 0);
+
+Promise.resolve().then(() => {
+  console.log("3");
+});
+
+console.log("4");
+```
+
+Результат:
+
+```text
+1
+4
+3
+2
+```
+
+Потому что:
+
+1. Выполняется синхронный код.
+2. Выполняются все микротаски (`Promise.then`).
+3. Выполняется макротаска (`setTimeout`).
+
+---
+
+### Сравнение подходов
+
+| Подход          | Актуальность                | Применение             |
+| --------------- | --------------------------- | ---------------------- |
+| Callback        | Устаревающий                | Старый код, события    |
+| Promise         | Актуальный                  | Основа асинхронности   |
+| Async/Await     | Основной современный подход | Большинство приложений |
+| Promise API     | Актуальный                  | Параллельные операции  |
+| Event Listeners | Актуальный                  | Работа с событиями     |
+| Web Workers     | Специализированный          | Тяжелые вычисления     |
+| Worker Threads  | Node.js                     | CPU-intensive задачи   |
+
+
+---
+
 ### Что такое мемоизация (Memoization)?
 
 Мемоизация (Memoization) — это техника оптимизации, при которой результаты выполнения функции сохраняются в кэше и повторно используются при вызове функции с теми же аргументами.
